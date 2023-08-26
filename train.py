@@ -1,8 +1,3 @@
-# -*- coding: utf-8 -*-
-# file: train.py
-# author: songyouwei <youwei0314@gmail.com>
-# Copyright (C) 2018. All Rights Reserved.
-
 import logging
 import argparse
 import math
@@ -10,12 +5,10 @@ import os
 import sys
 import random
 import numpy
-import time
 from sklearn import metrics
 from time import strftime, localtime
-import pandas as pd
 
-from transformers import BertModel,AutoTokenizer, AutoModelForMaskedLM
+from transformers import BertModel
 
 import torch
 import torch.nn as nn
@@ -147,7 +140,7 @@ class Instructor:
                 max_val_epoch = i_epoch
                 if not os.path.exists('state_dict'):
                     os.mkdir('state_dict')
-                path = 'state_dict/{0}_{1}_{2}_val_acc_{3}_f1_{4}'.format(self.opt.model_name, self.opt.dataset, self.opt.hops,round(val_acc, 4),round(val_f1, 4))
+                path = 'state_dict/{0}_{1}_{2}_val_acc_{3}_f1_{4}'.format(self.opt.model_name, self.opt.dataset, self.opt.threshold, round(val_acc, 4), round(val_f1, 4))
                 torch.save(self.model.state_dict(), path)
                 logger.info('>> saved: {}'.format(path))
                 if val_f1 > max_val_f1:
@@ -181,12 +174,6 @@ class Instructor:
                 else:
                     t_targets_all = torch.cat((t_targets_all, t_targets), dim=0)
                     t_outputs_all = torch.cat((t_outputs_all, t_outputs), dim=0)
-        #         if _istest:
-        #             for j in range(len(t_outputs)):
-        #                 incorr.append([text[j],t_targets[j],pre[j]])
-        # if _istest:
-        #     df = pd.DataFrame(incorr, columns=['text', 'target','predict'], dtype=int)
-        #     df.to_csv("D:/CaseStudy/test{0}_{1}.csv".format(self.opt.model_name,self.opt.dataset), sep=',',index_label=False)
         acc = n_correct / n_total
         f1 = metrics.f1_score(t_targets_all.cpu(), torch.argmax(t_outputs_all, -1).cpu(), labels=[0, 1, 2], average='macro')
         return acc, f1
@@ -212,15 +199,15 @@ class Instructor:
 def main():
      # Hyper Parameters
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model_name', default='AOAN', type=str)
-    parser.add_argument('--dataset', default='twitter', type=str, help='twitter, restaurant, laptop')
+    parser.add_argument('--model_name', default='AOAN_bert', type=str)
+    parser.add_argument('--dataset', default='laptop', type=str, help='twitter, restaurant, laptop')
     parser.add_argument('--optimizer', default='adam', type=str)
     parser.add_argument('--initializer', default='xavier_uniform_', type=str)
     parser.add_argument('--lr', default=2e-5, type=float, help='try 5e-5, 2e-5 for BERT, 1e-3 for others')
     parser.add_argument('--dropout', default=0, type=float)
     parser.add_argument('--l2reg', default=0.00001, type=float)
-    parser.add_argument('--num_epoch', default=20, type=int, help='try larger number for non-BERT models')
-    parser.add_argument('--batch_size', default=16, type=int, help='try 16, 32, 64 for BERT models')
+    parser.add_argument('--num_epoch', default=30, type=int, help='try larger number for non-BERT models')
+    parser.add_argument('--batch_size', default=32, type=int, help='try 16, 32, 64 for BERT models')
     parser.add_argument('--log_step', default=10, type=int)
     parser.add_argument('--embed_dim', default=300, type=int)
     parser.add_argument('--hidden_dim', default=300, type=int)
@@ -230,10 +217,10 @@ def main():
     parser.add_argument('--polarities_dim', default=3, type=int)
     parser.add_argument('--patience', default=5, type=int)
     parser.add_argument('--device', default='cuda:0', type=str, help='e.g. cuda:0')
-    parser.add_argument('--seed', default=2023, type=int, help='set seed for reproducibility')
+    parser.add_argument('--seed', default=2123, type=int, help='set seed for reproducibility')
     parser.add_argument('--valset_ratio', default=0, type=float, help='set ratio between 0 and 1 for validation support')
     # The following parameters are only valid for the lcf-bert model
-    parser.add_argument('--threshold', default=0, type=int, help='hyperparameter L, see the paper of AOAN model')
+    parser.add_argument('--threshold', default=10, type=int, help='hyperparameter L, see the paper of AOAN model')
     opt = parser.parse_args()
 
     if opt.seed is not None:
@@ -246,7 +233,7 @@ def main():
         os.environ['PYTHONHASHSEED'] = str(opt.seed)
 
     model_classes = {
-        'AOAN': AOAN,
+        'AOAN_bert': AOAN,
     }
     dataset_files = {
         'twitter': {
@@ -263,7 +250,7 @@ def main():
         }
     }
     input_colses = {
-        'AOAN': ['concat_bert_indices', 'concat_segments_indices', 'text_bert_indices', 'aspect_bert_indices','aspect_boundary'],
+        'AOAN_bert': ['concat_bert_indices', 'concat_segments_indices', 'text_bert_indices', 'aspect_bert_indices','aspect_boundary'],
     }
     initializers = {
         'xavier_uniform_': torch.nn.init.xavier_uniform_,
