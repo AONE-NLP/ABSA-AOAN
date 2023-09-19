@@ -1,12 +1,3 @@
-# -*- coding: utf-8 -*-
-# file: lcf_bert.py
-# author: yangheng <yangheng@m.scnu.edu.cn>
-# Copyright (C) 2019. All Rights Reserved.
-
-
-# The code is based on repository: https://github.com/yangheng95/LCF-ABSA
-
-
 import torch
 import torch.nn as nn
 import copy
