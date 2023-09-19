@@ -75,7 +75,7 @@ class AOAN(nn.Module):
         bert_spc_out, _ = self.bert_spc(text_bert_indices, token_type_ids=bert_segments_ids,return_dict=False)
         bert_spc_out = self.dropout(bert_spc_out)
 
-        neighboring_span, _ = self.bert_local(text_local_indices,return_dict=False)
+        neighboring_span, _ = self.bert_spc(text_local_indices,return_dict=False)
         neighboring_span = self.dropout(neighboring_span)
 
         out_list=[]
