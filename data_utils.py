@@ -150,7 +150,6 @@ class ABSADataset(Dataset):
         idx2graph = pickle.load(fin)
         fin.close()
         all_data = []
-        maxlen = 100
         # range(start, stop[, step])：数据集按照第一行为句子、第二行为方面词、第三行为情感极性标签
         for i in range(0, len(lines), 3):
             # print(len(lines))
@@ -179,20 +178,11 @@ class ABSADataset(Dataset):
             concat_segments_indices = [0] * (text_len + 2) + [1] * (aspect_len + 1)
             concat_segments_indices = pad_and_truncate(concat_segments_indices, tokenizer.max_seq_len)
             concat_bert_contex = tokenizer.text_to_sequence("[CLS] " + text_left + " " + text_right + " [SEP]")
-            # test_indices1=tokenizer.text_to_sequence(
-            #     "[CLS] The mini 's body has n't changed since late 2010 - and for a good reason . [SEP]")
-            # test_indices3 = tokenizer.text_to_sequence(
-            #     "[CLS] The Mini ' s body has n ' t changed since late 2010 - and for a good reason . [SEP]")
+
             text_bert_indices = tokenizer.text_to_sequence(
                 "[CLS] " + text_left + " " + aspect + " " + text_right + " [SEP]")
             aspect_bert_indices = tokenizer.text_to_sequence("[CLS] " + aspect + " [SEP]")
             context_len = np.sum(context_indices != 0)
-
-            if mask1.shape[0] != maxlen + 1 or mask2.shape[0] != maxlen + 1 or mask3.shape[0] != maxlen + 1 or \
-                    mask4.shape[0] != maxlen + 1:
-                print(left_len, right_len, context_len)
-                print(mask1.shape, mask2.shape, mask3.shape, mask4.shape)
-                raise RuntimeError('Error{0}'.format(i))
 
             dependency_graph = np.pad(idx2graph[i], \
                                       ((0, tokenizer.max_seq_len - idx2graph[i].shape[0]),
