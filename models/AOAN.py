@@ -72,7 +72,7 @@ class AOAN(nn.Module):
         out_list=[]
 
         for i in range(self.opt.threshold+1):
-            masked_local_text_vec = self.moving_mask(text_local_indices, aspect_indices,i)
+            masked_local_text_vec = self.moving_mask(bert_spc_out, aspect_indices,i)
             neighboring_span = torch.mul(neighboring_span, masked_local_text_vec)
             enhanced_text = torch.cat((neighboring_span, bert_spc_out), dim=-1)
             mean_pool = self.linear_double(enhanced_text)
