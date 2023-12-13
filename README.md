@@ -4,18 +4,26 @@ Code and datasets of our paper [Aspect-oriented Opinion Alignment Network for As
 
 ## Requirements
 
+```
 numpy>=1.13.3
 torch>=0.4.0
 transformers>=3.5.1,<4.0.0
 sklearn
+```
 
-To install requirements, run `pip install -r requirements.txt`.
+To install requirements, run 
+
+```
+pip install -r requirements.txt
+```
 
 ## Training
 
 To train the AOAN model, run:
 
-`python train.py`
+```
+python train.py
+```
 
 ## Credits
 
