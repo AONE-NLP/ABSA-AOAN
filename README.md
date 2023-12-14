@@ -2,6 +2,8 @@
 
 Code and datasets of our paper [Aspect-oriented Opinion Alignment Network for Aspect-Based Sentiment Classification](https://ebooks.iospress.nl/volumearticle/64368) accepted by ECAI 2023.
 
+![model](https://github.com/AONE-NLP/ABSA-AOAN/blob/main/models/Model%20Overview.jpg)
+
 ## Requirements
 
 ```
